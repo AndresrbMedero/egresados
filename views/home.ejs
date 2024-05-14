@@ -1,0 +1,37 @@
+<!-- home.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Primer Empleo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Bienvenido a Primer Empleo</h1>
+        <nav>
+            <ul>
+                <li><a href="/perfil">Mi Perfil</a></li>
+                <li><a href="/buscar">Buscar Empleos</a></li>
+                <li><a href="/mensajes">Mensajes</a></li>
+                <li><a href="/logout">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section class="hero">
+        <div class="container">
+            <h2>Bienvenido de nuevo, <%= nombreUsuario.charAt(0).toUpperCase() + nombreUsuario.slice(1) %></h2>
+            <p>Encuentra tu primer empleo y da el primer paso en tu carrera profesional.</p>
+            <a href="/buscar" class="btn">Buscar Empleos</a>
+        </div>
+    </section>
+    
+    <section class="highlights">
+        <div class="container">
+            <h2>Destacados</h2>
+            <!-- Aquí podrías incluir algunos trabajos destacados o información personalizada para el usuario -->
+        </div>
+    </section>
+   
+            

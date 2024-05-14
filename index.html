@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido</title>
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+    <div class="container">
+        <h2>Bienvenido</h2>
+        <div class="opciones">
+            <button id="registro-btn">Registrarse</button>
+            <button id="login-btn">Iniciar Sesión</button>
+        </div>
+        <a href="./public/login.html"></a>
+    </div>
+
+    <script>
+        document.getElementById('registro-btn').addEventListener('click', function() {
+            // Redireccionar a la página de registro
+            window.location.href = './public/registro.html';
+        });
+
+        document.getElementById('login-btn').addEventListener('click', function() {
+            // Redireccionar a la página de inicio de sesión
+            window.location.href = './public/login.html';
+        });
+    </script>
+    
+</body>
+</html>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Iniciar Sesión</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="contraseña">Contraseña:</label>
+                <input type="password" id="contraseña" name="contraseña" required>
+            </div>
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+        <p id="mensaje"></p>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const contraseña = document.getElementById('contraseña').value;
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, contraseña })
+                });
+                const data = await response.json();
+                // Verificar si la respuesta indica un error
+                if (response.status === 401) {
+                    // Si es un error de credenciales inválidas, muestra el mensaje de error
+                    document.getElementById('mensaje').textContent = data.error;
+                } else {
+                    // Si es un inicio de sesión exitoso, muestra el mensaje de éxito
+                    document.getElementById('mensaje').textContent = 'Inicio de sesión exitoso';
+                    // Redireccionar al usuario a la página de perfil u otra página
+                    window.location.href = '../views/home.ejs';
+                }
+            } catch (error) {
+                console.error('Error al iniciar sesión:', error);
+                document.getElementById('mensaje').textContent = 'Error al iniciar sesión';
+            }
+        });
+    </script>
+</body>
+</html>

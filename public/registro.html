@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Registro de Usuario</h2>
+        <form id="registro-form">
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="contraseña">Contraseña:</label>
+                <input type="password" id="contraseña" name="contraseña" required>
+            </div>
+            <div class="form-group">
+                <label for="rol">Selecciona tu rol:</label>
+                <select id="rol" name="rol" required>
+                    <option value="egresado">Egresado</option>
+                    <option value="empresa">Empresa</option>
+                </select>
+            </div>
+            <button type="submit">Registrar</button>
+        </form>
+        <p id="mensaje"></p>
+    </div>
+
+    <script>
+        document.getElementById('registro-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const nombre = document.getElementById('nombre').value;
+    const email = document.getElementById('email').value;
+    const contraseña = document.getElementById('contraseña').value;
+    const rol = document.getElementById('rol').value; // Obtener el valor del rol seleccionado
+
+    try {
+        const response = await fetch('/registro', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ nombre, email, contraseña, rol }) // Incluir el rol en los datos enviados al servidor
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.usuario !== undefined) {
+                document.getElementById('mensaje').textContent = `Usuario registrado con ID: ${data.usuario}`;
+            } else {
+                document.getElementById('mensaje').textContent = 'Error al registrar usuario';
+            }
+        } else {
+            document.getElementById('mensaje').textContent = 'Error al registrar usuario';
+        }
+    } catch (error) {
+        console.error('Error al registrar usuario:', error);
+        document.getElementById('mensaje').textContent = 'Error al registrar usuario';
+    }
+});
+    </script>
+</body>
+</html>
