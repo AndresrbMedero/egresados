@@ -97,18 +97,44 @@ app.get('/perfil', (req, res) => {
 app.get('/views/home.ejs', async (req, res) => {
     if (!req.session.user) {
         return res.redirect('/login'); // Redirigir a la página de inicio de sesión si no hay usuario en la sesión
-    }
+    }app.get('/home', async (req, res) => {
+        if (!req.session.user) {
+            return res.redirect('/login');
+        }
+        const usuarioId = req.session.user.id;
+        const nombreUsuario = req.session.user.nombre;
+        const rolUsuario = req.session.user.rol;
+    
+        try {
+            const { rows } = await db.pool.query(
+                `SELECT v.*, u.nombre AS nombre_empresa, v.empresa_id = $1 AS es_creador
+                 FROM vacante v
+                 JOIN usuarios u ON v.empresa_id = u.id
+                 ORDER BY v.fecha_publicacion DESC
+                 LIMIT 4`,
+                [usuarioId]
+            );
+            const destacados = rows;
+            res.render('home', { nombreUsuario, rolUsuario, destacados });
+        } catch (error) {
+            console.error('Error al obtener vacantes destacadas:', error);
+            res.render('home', { nombreUsuario, rolUsuario, destacados: [] });
+        }
+    });
+    
+    const usuarioId = req.session.user.id;
     const nombreUsuario = req.session.user.nombre;
     const rolUsuario = req.session.user.rol;
 
     try {
         // Consultar las últimas 4 vacantes disponibles ordenadas por fecha de publicación
         const { rows } = await db.pool.query(
-            `SELECT v.*, u.nombre AS nombre_empresa 
+            `SELECT v.*, u.nombre AS nombre_empresa, v.empresa_id = $1 AS es_creador
              FROM vacante v
              JOIN usuarios u ON v.empresa_id = u.id
              ORDER BY v.fecha_publicacion DESC
-             LIMIT 4`
+             LIMIT 4`,
+            [usuarioId]
         );
         const destacados = rows;
         res.render('home', { nombreUsuario, rolUsuario, destacados });
@@ -116,6 +142,58 @@ app.get('/views/home.ejs', async (req, res) => {
         console.error('Error al obtener vacantes destacadas:', error);
         // Manejar el error
         res.render('home', { nombreUsuario, rolUsuario, destacados: [] }); // Pasar un array vacío en caso de error
+    }
+});
+
+
+app.delete('/eliminar-vacante/:id', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'No autorizado' }); // Verificar si el usuario está autenticado
+    }
+    const usuarioId = req.session.user.id;
+    const vacanteId = req.params.id;
+
+    try {
+        // Verificar si la vacante pertenece al usuario actual
+        const { rows } = await db.pool.query('SELECT * FROM vacante WHERE id = $1 AND empresa_id = $2', [vacanteId, usuarioId]);
+        if (rows.length === 0) {
+            return res.status(403).json({ error: 'No autorizado para eliminar esta vacante' });
+        }
+
+        // Eliminar la vacante
+        await db.pool.query('DELETE FROM vacante WHERE id = $1', [vacanteId]);
+        res.status(200).json({ message: 'Vacante eliminada exitosamente' });
+    } catch (error) {
+        console.error('Error al eliminar vacante:', error);
+        res.status(500).json({ error: 'Error al eliminar vacante' });
+    }
+});
+
+app.post('/postularse-vacante/:id', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'No autorizado' });
+    }
+    const usuarioId = req.session.user.id;
+    const rolUsuario = req.session.user.rol;
+    const vacanteId = req.params.id;
+
+    if (rolUsuario !== 'egresado') {
+        return res.status(403).json({ error: 'Solo los egresados pueden postularse' });
+    }
+
+    try {
+        // Verificar si la vacante ya tiene un egresado postulado
+        const { rows } = await db.pool.query('SELECT * FROM vacante WHERE id = $1 AND egresado_id IS NULL', [vacanteId]);
+        if (rows.length === 0) {
+            return res.status(400).json({ error: 'La vacante no está disponible para postulación o ya tiene un egresado' });
+        }
+
+        // Actualizar la vacante con el id del egresado
+        await db.pool.query('UPDATE vacante SET egresado_id = $1 WHERE id = $2', [usuarioId, vacanteId]);
+        res.status(200).json({ message: 'Postulación exitosa' });
+    } catch (error) {
+        console.error('Error al postularse a la vacante:', error);
+        res.status(500).json({ error: 'Error al postularse a la vacante' });
     }
 });
 

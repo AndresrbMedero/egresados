@@ -38,8 +38,8 @@
             <h2>Destacados</h2>
             <ul>
                 <% destacados.forEach(vacante => { 
-                    const fechaPublicacion = new Date(vacante.fecha_publicacion).toLocaleDateString('es-ES');
-                    const fechaCierre = new Date(vacante.fecha_cierre).toLocaleDateString('es-ES');
+                    const fechaPublicacion = new Date(vacante.fecha_publicacion).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const fechaCierre = new Date(vacante.fecha_cierre).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
                 %>
                     <li>
                         <h3><%= vacante.titulo %></h3>
@@ -47,15 +47,55 @@
                         <p>Empresa: <%= vacante.nombre_empresa %></p>
                         <p>Fecha de Publicación: <%= fechaPublicacion %></p>
                         <p>Fecha de Cierre: <%= fechaCierre %></p>
-                        <!-- Puedes incluir más detalles de la vacante aquí -->
+                        <% if (rolUsuario === 'egresado') { %>
+                            <button onclick="postularseVacante(<%= vacante.id %>)">Postularse</button>
+                        <% } %>
+                        <% if (vacante.es_creador) { %>
+                            <button onclick="eliminarVacante(<%= vacante.id %>)">Eliminar</button>
+                        <% } %>
                     </li>
                 <% }); %>
             </ul>
         </div>
     </section>
     
+    <script>
+        async function postularseVacante(vacanteId) {
+            try {
+                const response = await fetch(`/postularse-vacante/${vacanteId}`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    alert('Postulación exitosa');
+                } else {
+                    alert('Error al postularse');
+                }
+            } catch (error) {
+                console.error('Error al postularse:', error);
+                alert('Error al postularse');
+            }
+        }
     
-
+        async function eliminarVacante(vacanteId) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta vacante?')) {
+                try {
+                    const response = await fetch(`/eliminar-vacante/${vacanteId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        location.reload(); // Recargar la página después de eliminar la vacante
+                    } else {
+                        alert('Error al eliminar la vacante');
+                    }
+                } catch (error) {
+                    console.error('Error al eliminar vacante:', error);
+                    alert('Error al eliminar la vacante');
+                }
+            }
+        }
+    </script>
+    
+    
     
     
     <section class="suggestions">
