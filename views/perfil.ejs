@@ -3,44 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil de Usuario</title>
+    <title>Perfil - Primer Empleo</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <header>
-        <h1>Perfil de Usuario</h1>
+        <h1>Perfil de <%= nombre %></h1>
         <nav>
-            <div class="menu-icon" id="menu-icon">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-            </div>
-            <ul id="nav-list">
+            <ul>
                 <li><a href="/views/home.ejs">Inicio</a></li>
-                <li><a href="/buscar">Buscar Empleos</a></li>
-               
-                <% if (rol === 'empresa') { %>
-                    <li><a href="/agregar-vacante">Agregar Vacante</a></li>
-                <% } %>
                 <li><a href="/logout">Cerrar Sesión</a></li>
             </ul>
         </nav>
     </header>
-    <section class="perfil">
-        <div class="container">
-            <h2>Detalles del Perfil</h2>
-            <p><strong>ID:</strong> <%= id %></p>
-            <p><strong>Nombre:</strong> <%= nombre.charAt(0).toUpperCase() + nombre.slice(1) %></p>
-            <p><strong>Email:</strong> <%= email %></p>
-            <p><strong>Rol:</strong> <%= rol %></p>
-        </div>
+    <section class="profile">
+        <h2>Información del Usuario</h2>
+        <p>Nombre: <%= nombre %></p>
+        <p>Email: <%= email %></p>
+        <p>Rol: <%= rol.charAt(0).toUpperCase() + rol.slice(1) %></p>
+    </section>
+    <section class="vacantes">
+        <h2>Mis Vacantes</h2>
+        <ul>
+            <% if (rol === 'egresado') { %>
+                <% vacantes.forEach(vacante => { 
+                    const fechaPublicacion = new Date(vacante.fecha_publicacion).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const fechaCierre = new Date(vacante.fecha_cierre).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+                %>
+                    <li>
+                        <h3><%= vacante.titulo %></h3>
+                        <p><%= vacante.descripcion %></p>
+                        <p>Empresa: <a href="/perfil-empresa/<%= vacante.empresa_id %>"><%= vacante.nombre_empresa %></a></p>
+                        <p>Fecha de Publicación: <%= fechaPublicacion %></p>
+                        <p>Fecha de Cierre: <%= fechaCierre %></p>
+                    </li>
+                <% }); %>
+            <% } else if (rol === 'empresa') { %>
+                <% vacantes.forEach(vacante => { 
+                    const fechaPublicacion = new Date(vacante.fecha_publicacion).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const fechaCierre = new Date(vacante.fecha_cierre).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+                %>
+                    <li>
+                        <h3><%= vacante.titulo %></h3>
+                        <p><%= vacante.descripcion %></p>
+                        <p>Egresado: <%= vacante.nombre_egresado ? `<a href="/perfil-egresado/${vacante.egresado_id}">${vacante.nombre_egresado}</a>` : 'N/A' %></p>
+                        <p>Fecha de Publicación: <%= fechaPublicacion %></p>
+                        <p>Fecha de Cierre: <%= fechaCierre %></p>
+                        <% if (vacante.es_creador) { %>
+                            <button onclick="eliminarVacante(<%= vacante.id %>)">Eliminar</button>
+                        <% } %>
+                    </li>
+                <% }); %>
+            <% } %>
+        </ul>
     </section>
 
     <script>
-        document.getElementById('menu-icon').addEventListener('click', function() {
-            var navList = document.getElementById('nav-list');
-            navList.classList.toggle('show');
-        });
+        async function eliminarVacante(vacanteId) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta vacante?')) {
+                try {
+                    const response = await fetch(`/eliminar-vacante/${vacanteId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        location.reload(); // Recargar la página después de eliminar la vacante
+                    } else {
+                        alert('Error al eliminar la vacante');
+                    }
+                } catch (error) {
+                    console.error('Error al eliminar vacante:', error);
+                    alert('Error al eliminar la vacante');
+                }
+            }
+        }
     </script>
 </body>
 </html>

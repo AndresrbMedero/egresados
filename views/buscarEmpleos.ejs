@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Empleos</title>
+    <link rel="stylesheet" href="/styles.css"> <!-- Asegúrate de que esta ruta sea correcta -->
+</head>
+<body>
+    <div class="container">
+        <h2>Lista de Vacantes</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Empresa</th>
+                    <th>Fecha de Cierre</th>
+                    <th>Acciones</th> 
+                </tr>
+            </thead>
+            <tbody>
+             
+                <% vacantes.forEach(vacante => { %>
+                    <tr>
+                        <td><%= vacante.titulo %></td>
+                        <td><%= vacante.descripcion %></td>
+                        <td><%= vacante.nombre_empresa %></td>
+                        <td><%= vacante.fecha_cierre %></td>
+                        <td>
+                            <form action="/postularse-vacante/<%= vacante.id %>" method="POST">
+                                <button type="submit">Postularse</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

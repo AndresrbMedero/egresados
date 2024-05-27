@@ -1,7 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
-const db = require('./db'); // Asegúrate de que db.js está en la misma carpeta que index.js
+const db = require('./db'); 
 const path = require('path');
 
 const app = express();
@@ -13,13 +13,13 @@ app.set('view engine', 'ejs');
 // Configuración de la sesión
 app.use(session({
     store: new pgSession({
-        pool: db.pool, // Utilizar el pool importado desde db.js
+        pool: db.pool, 
         tableName: 'sesiones'
     }),
     secret: 'secreto',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 días
+    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
 }));
 
 app.use(express.json());
@@ -83,20 +83,87 @@ app.post('/agregar-vacante', async (req, res) => {
 
 
 
-// Ruta para visualizar el perfil del usuario
-app.get('/perfil', (req, res) => {
+app.get('/perfil', async (req, res) => {
     if (!req.session.user) {
-        return res.redirect('/public/login.html'); // Redirigir a la página de inicio de sesión si no hay usuario en la sesión
+        return res.redirect('/public/login.html');
     }
     const { id, nombre, email, rol } = req.session.user;
-    res.render('perfil', { id, nombre, email, rol });
+
+    try {
+        let vacantes = [];
+        if (rol === 'egresado') {
+            // Obtener las vacantes a las que el egresado se ha postulado
+            const { rows } = await db.pool.query(`
+                SELECT v.*, u.nombre AS nombre_empresa 
+                FROM vacante v
+                JOIN usuarios u ON v.empresa_id = u.id
+                WHERE v.egresado_id = $1
+            `, [id]);
+            vacantes = rows;
+        } else if (rol === 'empresa') {
+            // Obtener las vacantes dadas de alta por la empresa
+            const { rows } = await db.pool.query(`
+                SELECT v.*, u.nombre AS nombre_egresado
+                FROM vacante v
+                LEFT JOIN usuarios u ON v.egresado_id = u.id
+                WHERE v.empresa_id = $1
+            `, [id]);
+            vacantes = rows;
+        }
+        res.render('perfil', { id, nombre, email, rol, vacantes });
+    } catch (error) {
+        console.error('Error al obtener vacantes:', error);
+        res.render('perfil', { id, nombre, email, rol, vacantes: [] });
+    }
 });
+
+// Ruta para cerrar sesión
+app.get('/logout', (req, res) => {
+    // Destruir la sesión del usuario
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error al cerrar sesión:', err);
+            return res.status(500).json({ error: 'Error al cerrar sesión' });
+        }
+        // Redirigir al usuario a la página de inicio de sesión
+        res.redirect('/public/login.html');
+    });
+});
+
+
+
+
+async function obtenerTodasLasVacantes() {
+    try {
+        // Realizar la consulta a la base de datos para obtener todas las vacantes disponibles
+        const { rows } = await db.pool.query('SELECT * FROM vacante');
+        return rows; // Devolver las vacantes obtenidas
+    } catch (error) {
+        throw error; // Relanzar el error para manejarlo en el controlador de la ruta
+    }
+}
+
+
+// Ruta para buscar vacantes
+app.get('/buscar-empleos', async (req, res) => {
+    try {
+        const { rows } = await db.pool.query('SELECT * FROM vacante');
+        const vacantes = rows;
+        res.render('buscarEmpleos', { vacantes });
+    } catch (error) {
+        console.error('Error al buscar vacantes:', error);
+        res.status(500).send('Error al buscar vacantes');
+    }
+});
+
+
+
 
 
 
 app.get('/views/home.ejs', async (req, res) => {
     if (!req.session.user) {
-        return res.redirect('/login'); // Redirigir a la página de inicio de sesión si no hay usuario en la sesión
+        return res.redirect('/login');
     }app.get('/home', async (req, res) => {
         if (!req.session.user) {
             return res.redirect('/login');
@@ -194,6 +261,43 @@ app.post('/postularse-vacante/:id', async (req, res) => {
     } catch (error) {
         console.error('Error al postularse a la vacante:', error);
         res.status(500).json({ error: 'Error al postularse a la vacante' });
+    }
+});
+
+
+// Ruta para el perfil de la empresa
+app.get('/perfil-empresa/:id', async (req, res) => {
+    const empresaId = req.params.id;
+    try {
+        // Consulta para obtener la información de la empresa
+        const { rows } = await db.pool.query('SELECT * FROM usuarios WHERE id = $1 AND rol = $2', [empresaId, 'empresa']);
+        if (rows.length === 0) {
+            return res.status(404).send('Empresa no encontrada');
+        }
+        const empresa = rows[0];
+        // Renderizar la vista del perfil de la empresa
+        res.render('perfilEmpresa', { empresa });
+    } catch (error) {
+        console.error('Error al obtener el perfil de la empresa:', error);
+        res.status(500).send('Error al obtener el perfil de la empresa');
+    }
+});
+
+// Ruta para el perfil del egresado
+app.get('/perfil-egresado/:id', async (req, res) => {
+    const egresadoId = req.params.id;
+    try {
+        // Consulta para obtener la información del egresado
+        const { rows } = await db.pool.query('SELECT * FROM usuarios WHERE id = $1 AND rol = $2', [egresadoId, 'egresado']);
+        if (rows.length === 0) {
+            return res.status(404).send('Egresado no encontrado');
+        }
+        const egresado = rows[0];
+        // Renderizar la vista del perfil del egresado
+        res.render('perfilEgresado', { egresado });
+    } catch (error) {
+        console.error('Error al obtener el perfil del egresado:', error);
+        res.status(500).send('Error al obtener el perfil del egresado');
     }
 });
 

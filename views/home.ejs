@@ -8,7 +8,7 @@
 </head>
 <body>
     <header>
-        <h1>Bienvenido a Primer Empleo</h1>
+        <h1>Bienvenido al Sistema de Egresados</h1>
         <nav>
             <div class="menu-icon" id="menu-icon">
                 <div class="bar"></div>
@@ -17,7 +17,7 @@
             </div>
             <ul id="nav-list">
                 <li><a href="/perfil">Mi Perfil</a></li>
-                <li><a href="./public/agregarV.html">Buscar Empleos</a></li>
+                <li><a href="/buscar-empleos">Buscar Empleos</a></li>
                 <% if (rolUsuario === 'empresa') { %>
                     <li><a href="/agregar-vacante">Agregar Vacante</a></li>
                 <% } %>
@@ -27,7 +27,7 @@
     </header>
     <section class="hero">
         <div class="container">
-            <h2>Bienvenido de nuevo, <%= nombreUsuario.charAt(0).toUpperCase() + nombreUsuario.slice(1) %></h2>
+            <h2>Bienvenido <%= nombreUsuario.charAt(0).toUpperCase() + nombreUsuario.slice(1) %></h2>
             <p>Encuentra tu primer empleo y da el primer paso en tu carrera profesional.</p>
             <a href="/buscar" class="btn">Buscar Empleos</a>
         </div>
@@ -35,7 +35,7 @@
     
     <section class="highlights">
         <div class="container">
-            <h2>Destacados</h2>
+            <h2>Mas resientes</h2>
             <ul>
                 <% destacados.forEach(vacante => { 
                     const fechaPublicacion = new Date(vacante.fecha_publicacion).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -83,7 +83,7 @@
                         method: 'DELETE'
                     });
                     if (response.ok) {
-                        location.reload(); // Recargar la página después de eliminar la vacante
+                        location.reload();
                     } else {
                         alert('Error al eliminar la vacante');
                     }
@@ -95,15 +95,7 @@
         }
     </script>
     
-    
-    
-    
-    <section class="suggestions">
-        <div class="container">
-            <h2>Te sugerimos</h2>
-            <!-- Aquí podrías incluir algunas sugerencias de trabajos basadas en el perfil del usuario -->
-        </div>
-    </section>
+
     
     <script>
         document.getElementById('menu-icon').addEventListener('click', function() {
