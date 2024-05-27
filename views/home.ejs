@@ -4,156 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio - Primer Empleo</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        /* styles.css */
-
-/* Estilos generales */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-    color: #333;
-}
-
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-/* Estilos de encabezado */
-header {
-    background-color: #4CAF50; /* Verde llamativo */
-    color: #fff;
-    padding: 10px 0;
-    position: relative;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-header h1 {
-    margin: 0;
-    padding: 10px 20px;
-    text-align: center;
-}
-
-nav {
-    position: relative;
-}
-
-nav ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-nav ul li {
-    margin: 0 10px;
-}
-
-nav ul li a {
-    color: #fff;
-    text-decoration: none;
-    padding: 10px 15px;
-    transition: background-color 0.3s ease;
-}
-
-nav ul li a:hover {
-    background-color: #45a049; /* Color verde oscuro */
-    border-radius: 4px;
-}
-
-/* Menu icon for smaller screens */
-.menu-icon {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    padding: 10px;
-}
-
-.menu-icon .bar {
-    width: 25px;
-    height: 3px;
-    background-color: #fff;
-    margin: 4px 0;
-    transition: 0.4s;
-}
-
-.menu-icon:hover .bar {
-    background-color: #45a049; /* Color verde oscuro */
-}
-
-/* Hide menu items on smaller screens */
-#nav-list {
-    display: flex;
-}
-
-@media (max-width: 768px) {
-    .menu-icon {
-        display: flex;
-        margin-left: 20px;
-    }
-
-    #nav-list {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        background-color: #4CAF50;
-        position: absolute;
-        top: 50px;
-        left: 0;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    }
-
-    #nav-list li {
-        margin: 0;
-    }
-
-    #nav-list li a {
-        border-bottom: 1px solid #45a049;
-    }
-
-    #nav-list.show {
-        display: flex;
-    }
-}
-
-/* Hero Section */
-.hero {
-    background-color: #ffffff;
-    padding: 20px 0;
-    text-align: center;
-}
-
-.hero h2 {
-    margin-bottom: 10px;
-    color: #333;
-}
-
-.hero p {
-    color: #666;
-}
-
-.hero .btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
-
-.hero .btn:hover {
-    background-color: #45a049;
-}
-
-    </style>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <header>
@@ -166,8 +17,10 @@ nav ul li a:hover {
             </div>
             <ul id="nav-list">
                 <li><a href="/perfil">Mi Perfil</a></li>
-                <li><a href="/buscar">Buscar Empleos</a></li>
-                <li><a href="/mensajes">Mensajes</a></li>
+                <li><a href="./public/agregarV.html">Buscar Empleos</a></li>
+                <% if (rolUsuario === 'empresa') { %>
+                    <li><a href="/agregar-vacante">Agregar Vacante</a></li>
+                <% } %>
                 <li><a href="/logout">Cerrar Sesión</a></li>
             </ul>
         </nav>
@@ -183,9 +36,28 @@ nav ul li a:hover {
     <section class="highlights">
         <div class="container">
             <h2>Destacados</h2>
-            <!-- Aquí podrías incluir algunos trabajos destacados o información personalizada para el usuario -->
+            <ul>
+                <% destacados.forEach(vacante => { 
+                    const fechaPublicacion = new Date(vacante.fecha_publicacion).toLocaleDateString('es-ES');
+                    const fechaCierre = new Date(vacante.fecha_cierre).toLocaleDateString('es-ES');
+                %>
+                    <li>
+                        <h3><%= vacante.titulo %></h3>
+                        <p><%= vacante.descripcion %></p>
+                        <p>Empresa: <%= vacante.nombre_empresa %></p>
+                        <p>Fecha de Publicación: <%= fechaPublicacion %></p>
+                        <p>Fecha de Cierre: <%= fechaCierre %></p>
+                        <!-- Puedes incluir más detalles de la vacante aquí -->
+                    </li>
+                <% }); %>
+            </ul>
         </div>
     </section>
+    
+    
+
+    
+    
     <section class="suggestions">
         <div class="container">
             <h2>Te sugerimos</h2>
