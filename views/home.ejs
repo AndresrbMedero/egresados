@@ -4,7 +4,171 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio - Primer Empleo</title>
-    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #333;
+    padding: 10px 0;
+}
+
+header h1 {
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    margin: 0;
+}
+
+nav {
+    background-color: #333;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 10px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+nav ul li a:hover {
+    color: #ccc;
+}
+
+.hero {
+    text-align: center;
+    padding: 50px 0;
+    background-color: #f0f0f0;
+}
+
+.highlights {
+    padding: 50px 0;
+    background-color: #f9f9f9;
+}
+
+.profile {
+    text-align: center;
+    padding: 50px 0;
+}
+
+.profile h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.profile p {
+    font-size: 1.2em;
+    margin: 10px 0;
+}
+
+.card-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card h3 {
+    margin-top: 0;
+}
+
+.acciones button {
+    background-color: #333;
+    color: #fff;
+    padding: 8px 16px;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.acciones button:hover {
+    background-color: #555;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 20px;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #555;
+}
+
+#nav-list.show {
+    display: block;
+}
+
+.menu-icon {
+    display: none;
+    cursor: pointer;
+}
+
+.menu-icon .bar {
+    display: block;
+    width: 25px;
+    height: 3px;
+    margin: 5px auto;
+    background-color: #fff;
+}
+
+@media (max-width: 768px) {
+    .menu-icon {
+        display: block;
+    }
+
+    nav ul {
+        display: none;
+        flex-direction: column;
+    }
+
+    #nav-list.show {
+        display: flex;
+    }
+}
+
+    </style>
 </head>
 <body>
     <header>
@@ -17,7 +181,6 @@
             </div>
             <ul id="nav-list">
                 <li><a href="/perfil">Mi Perfil</a></li>
-                <li><a href="/buscar-empleos">Buscar Empleos</a></li>
                 <% if (rolUsuario === 'empresa') { %>
                     <li><a href="/agregar-vacante">Agregar Vacante</a></li>
                 <% } %>
@@ -29,19 +192,19 @@
         <div class="container">
             <h2>Bienvenido <%= nombreUsuario.charAt(0).toUpperCase() + nombreUsuario.slice(1) %></h2>
             <p>Encuentra tu primer empleo y da el primer paso en tu carrera profesional.</p>
-            <a href="/buscar" class="btn">Buscar Empleos</a>
+            <a href="/buscar-empleos" class="btn">Buscar Empleos</a>
         </div>
     </section>
     
     <section class="highlights">
         <div class="container">
-            <h2>Mas resientes</h2>
-            <ul>
+            <h2>Mas recientes</h2>
+            <ul class="card-list">
                 <% destacados.forEach(vacante => { 
                     const fechaPublicacion = new Date(vacante.fecha_publicacion).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
                     const fechaCierre = new Date(vacante.fecha_cierre).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
                 %>
-                    <li>
+                    <li class="card">
                         <h3><%= vacante.titulo %></h3>
                         <p><%= vacante.descripcion %></p>
                         <p>Empresa: <%= vacante.nombre_empresa %></p>
